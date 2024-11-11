@@ -1,4 +1,4 @@
-# MD-Drugs 
+<h1>md-drugs</h1>
 
 <div align="center">
   <a href="https://discord.gg/sAMzrB4DDx">
@@ -7,7 +7,7 @@
   <a href="https://discord.gg/sAMzrB4DDx">Mustache Scripts Discord</a><br>
 </div>
 
-# Credits
+<h1>Credits</h1>
 
 - I used [Samuel's development](https://fivem.samueldev.shop/) Christmas script global states and prop spawning (with permission obtained prior to release) in the development process.
 
@@ -26,148 +26,131 @@
 - [jixeltay](https://jixeltay.tebex.io/category/scripts) for putting out banger after banger. These people help the community learn so much more
 
 - Our partner [1of1 Servers]( https://1of1servers.com/) and their [discord](https://discord.gg/1of1servers) for their amazing server hosting! absolutely top notch.
-- Special Thanks To Kamaryn For The Preview
+
+<h1>Special Thanks To Kamaryn For The Preview</h1>
 - Thanks to Kamaryn for this [install guide video](https://youtu.be/zvuYnUfrqaA?si=FGJuBO5krZMC14Nd)
 
 - join their [discord](https://discord.gg/KPRmZqFS)  for other videos updates.
 
-# Dependencies
+<h1>Dependencies</h1>
+- [Ox Lib](https://github.com/overextended/ox_lib/releases/tag/v3.12.0) 
 
-- [ox_lib](https://github.com/overextended/ox_lib/releases/tag/v3.12.0) 
-
-- [qb-target](https://github.com/qbcore-framework/qb-target) **or** [ox_target](https://github.com/overextended/ox_target)
+- [qb-target](https://github.com/qbcore-framework/qb-target) **or** ox_target
   
-- emote script that uses the animations event
-    - for example one of these
-        - [dpemotes](https://github.com/andristum/dpemotes) -- should use RP instead
-        - [rpemotes](https://github.com/alberttheprince/rpemotes-reborn) 
-        - [scully_emotemenu](https://github.com/Scullyy/scully_emotemenu)
-
-- [read](https://letters.hookedonphonics.com/us/read-guaranteed-G14.html?vc=HPG1&pc=SHPGBR&tracking_id=102917836048989658da259e8c83e6&url_id=5586&oid=707&vid=1855&cid=4194&hid=14509&utm_source=1855&aff_id2={aff_id2}&utm_campaign=PracticePackHOS&utm_medium=S&utm_content=BrandDollarPacks&gc_id=184380999&h_ad_id=374941048206&src=O&qid=3&msvid=v2)
+- emote script that uses the animations event (rpemotes, dpemotes, scully emotes all work)
 
 - GAME BUILD 2944 OR LATER
 
 
-# Preview
 
-### [Preview link](https://www.youtube.com/watch?v=I_x7_oz_SAU) 
+<h1>Preview</h1>
 
-# How to install like a fuckin boss
+- [Preview link](https://www.youtube.com/watch?v=I_x7_oz_SAU)
+- **Preview**
 
-### STEP 1
+![](https://cdn.discordapp.com/attachments/1164709522691076120/1185729686135910582/image.png?ex=6590abd2&is=657e36d2&hm=35c3b2d4f55473d65dd9197a69052b7ec7ac7b28528811f3f59d5f306b7237eb&)
 
-- qb-inventory users go to md-drugs/items_install/qb-inventory and add the Items to `qb-core/shared/items.lua` and - Add items from md-drugs/items_install/images to qb-inventory/html/images
-- ox_inventory users go to md-drugs/items_install/ox_inventory and add the Items to `ox_inventory/data/items.lua` and - Add items from md-drugs/items_install/images to ox_inventory/web/images
+<h1>How to install like a fuckin boss</h1>
 
-### STEP 2
-- delete `qb-drugs` 
+- **STEP 1**
+	- qb-inventory users go to md-drugs/items_install/qb-inventory and add the Items to `qb-core/shared/items.lua` and - Add items from md-drugs/items_install/images to qb-inventory/html/images
+    - ox_inventory users go to md-drugs/items_install/ox_inventory and add the Items to `ox_inventory/data/items.lua` and - Add items from md-drugs/items_install/images to ox_inventory/web/images
 
-### STEP 3
-- Inside the config file change **all** the locations for everything.
-	- **ps:  All locations have been changed to make a preview video easier and with how big of a script this is, Im not going to config it for every city. THESE LOCATION DO NOT DO WELL FOR A LIVE SERVER SO CHANGE THEM**
+- **STEP 2**
 
-### STEP 4
+ 	- delete `qb-drugs` 
+
+- **STEP 3**
+
+	-  Inside the config file change **all** the locations for everything.
+		- **ps:  All locations have been changed to make a preview video easier and with how big of a script this is, Im not going to config it for every city. THESE LOCATION DO NOT DO WELL FOR A LIVE SERVER SO CHANGE THEM**
+
+
+- **STEP 4**
  - Head to your emote script search for **uncuff** if it's missing add it
-    - if rpemotes do this 
-        - go to client/animationListCustom.lua 
-            - add these to the CustomDP.Emotes = {}
-            ```lua
-                ["uncuff"] = {"mp_arresting","a_uncuff","Uncuff", AnimationOptions = {     EmoteLoop = true,     EmoteMoving = true } },
-                ["edible"] = { "mp_player_inteat@burger", "mp_player_int_eat_burger", "edible",    AnimationOptions = {        EmoteLoop = false,        EmoteMoving = true    }},
-            ```
-            - Add This to CustomDP.PropEmotes = {}
-            ```lua
-                ["shootup"] = { "rcmpaparazzo1ig_4", "miranda_shooting_up", "Shoot Up",  AnimationOptions = {EmoteLoop = true,EmoteMoving = true,Prop = 'prop_syringe_01',  PansexualPropBone = 18905,PropPlacement = {0.11, 0.03, 0.0, -124.0, 0.0, 0.0},}}
-            ```
-    - elseif dpemotes add this to client/AnimationList.lua
-        - add these to DP.Emotes = {}
-           ```lua
-                ["uncuff"] = {"mp_arresting","a_uncuff","Uncuff", AnimationOptions = {     EmoteLoop = true,     EmoteMoving = true } },
-                ["edible"] = { "mp_player_inteat@burger", "mp_player_int_eat_burger", "edible",    AnimationOptions = {        EmoteLoop = false,        EmoteMoving = true    }},
-            ```
-        - add these to DP.PropEmotes = {}
-             ```lua
-                ["shootup"] = { "rcmpaparazzo1ig_4", "miranda_shooting_up", "Shoot Up",  AnimationOptions = {EmoteLoop = true,EmoteMoving = true,Prop = 'prop_syringe_01',  PansexualPropBone = 18905,PropPlacement = {0.11, 0.03, 0.0, -124.0, 0.0, 0.0},}}
-            ```
-    - elseif scullyemotes then 
-        - add this to emotes.lua
-            ```lua
-		        {
-		        	Label = 'Uncuff',
-		        	Command = 'uncuff',
-		        	Animation = 'a_uncuff',
-		        	Dictionary = 'mp_arresting',
-		        	Options = {
-		        		Flags = {
-		        			Loop = true,
-		        			Move = true,
-		        		},
-		        	}
-		        },
-		        {
-		        	Label = 'Edibles',
-		        	Command = 'edible',
-		        	Animation = 'mp_player_int_eat_burger',
-		        	Dictionary = 'mp_player_inteat@burger',
-		        	Options = {
-		        		Flags = {
-		        			Loop = true,
-		        			Move = true,
-		        		},
-		        	}
-		        },
-            ```
-        - then in prop emotes do 
-            ```lua
-            {
-                    Label = 'Shoot Up',
-                    Command = 'shootup',
-                    Animation = "miranda_shooting_up",
-                    Dictionary = "rcmpaparazzo1ig_4",
-                    Options = {
-                        Flags = {
-                            Loop = true,
-                        },
-                        Props = {
-                            {
-                                Bone = 18905,
-                                Name = 'prop_syringe_01',
-                                Placement = {
-                                    vector3(0.11, 0.03, 0.0),
-                                     vector3( -124.0, 0.0, 0.0),
-                                },
-                            },
-                        },
+ - if rp or dpemotes then do this 
+
+```lua
+    ["uncuff"] = {"mp_arresting","a_uncuff","Uncuff", AnimationOptions = {     EmoteLoop = true,     EmoteMoving = true } },
+    ["edible"] = { "mp_player_inteat@burger", "mp_player_int_eat_burger", "edible",    AnimationOptions = {        EmoteLoop = false,        EmoteMoving = true    }},
+    ["shootup"] = { "rcmpaparazzo1ig_4", "miranda_shooting_up", "Shoot Up",  AnimationOptions = {EmoteLoop = true,EmoteMoving = true,Prop = 'prop_syringe_01',  PansexualPropBone = 18905,PropPlacement = {0.11, 0.03, 0.0, -124.0, 0.0, 0.0},}},
+```
+
+- if scully emotes do this in emotes.lua
+```
+		{
+			Label = 'Uncuff',
+			Command = 'uncuff',
+			Animation = 'a_uncuff',
+			Dictionary = 'mp_arresting',
+			Options = {
+				Flags = {
+					Loop = true,
+					Move = true,
+				},
+			}
+		},
+		{
+			Label = 'Edibles',
+			Command = 'edible',
+			Animation = 'mp_player_int_eat_burger',
+			Dictionary = 'mp_player_inteat@burger',
+			Options = {
+				Flags = {
+					Loop = true,
+					Move = true,
+				},
+			}
+		},
+```
+then in prop emotes do 
+```
+{
+        Label = 'Shoot Up',
+        Command = 'shootup',
+        Animation = "miranda_shooting_up",
+        Dictionary = "rcmpaparazzo1ig_4",
+        Options = {
+            Flags = {
+                Loop = true,
+            },
+            Props = {
+                {
+                    Bone = 18905,
+                    Name = 'prop_syringe_01',
+                    Placement = {
+                        vector3(0.11, 0.03, 0.0),
+                         vector3( -124.0, 0.0, 0.0),
                     },
                 },
-            ```
+            },
+        },
+    },
+```
 
-
-# STEP 5
-- check `qb-smallresources/config.lua` and if this exists, delete it 
-    - look for this code
-        ```lua
-        [2] = { --Coke Processing Enter/Exit
-                [1] = {
-                    poly = { coords = vector3(909.49, -1589.22, 30.51), heading = 92.24, length = 2, width = 2 },
-                    allowVeh = false,
-                    label = '[E] Enter Coke Processing'
-                },
-                [2] = {
-                    poly = { coords = vector3(1088.81, -3187.57, -38.99), heading = 181.7, length = 2, width = 2 },
-                    allowVeh = false,
-                    label = '[E] Leave'
-                }
-            }
-        ```
+- **STEP 5**
+	- check `qb-smallresources/config.lua` and if this exists, delete it 
+```
+[2] = { --Coke Processing Enter/Exit
+        [1] = {
+            poly = { coords = vector3(909.49, -1589.22, 30.51), heading = 92.24, length = 2, width = 2 },
+            allowVeh = false,
+            label = '[E] Enter Coke Processing'
+        },
+        [2] = {
+            poly = { coords = vector3(1088.81, -3187.57, -38.99), heading = 181.7, length = 2, width = 2 },
+            allowVeh = false,
+            label = '[E] Leave'
+        }
+    }
+```
 	
-# STEP 6
-- Run SQL
+- **STEP 6** 
+Run SQL
 	
+-- **OPTIONAL STEPS**
 
-# OPTIONAL STEPS
-
-## Fivemerr
+<h1>Fivemerr</h1>
 This is NOT a requirement but something I personally use and believe in.
 
 
@@ -183,20 +166,23 @@ As well as a place to offload images and videos from fivem that doesnt rely on d
 - [Fivemerr Discord](https://discord.com/invite/fivemerr)
 - [Fivemerr Docs](https://docs.fivemerr.com/)
 
-# Radial Menu
-- head to `qb-radial/config.lua` and search for the following event
+- <h1>Radial Menu </h1>
+	- head to `qb-radial/config.lua` and search for the following event
 ```lua
      event = 'qb-drugs:client:cornerselling',
 ```
-- and change it to this
+![](https://cdn.discordapp.com/attachments/1164709522691076120/1185724912648867940/image.png?ex=6590a760&is=657e3260&hm=51534201d8d3e71f79a5c1678879ed8423f381a4a31c62f1bce6caf73782abe0&)
+
 ```lua
      event = 'md-drugs:client:cornerselling',
 ```
 
+![](https://cdn.discordapp.com/attachments/1164709522691076120/1185725132975644753/image.png?ex=6590a795&is=657e3295&hm=97d7f60ec6c4508af92f758c00669b1d52fe673c6481434b586f81cf29c1f292&)
+or just use the command /cornersell
 
-# For Qb-shops users
+<h1>For Qb-shops users</h1>
 
-- Head to `qb-shops/config.lua` **Config.Products** and add the folowing items to OR anywhere else you want them. The Only way in this script to get them is to find the travelling merchant
+	- Head to `qb-shops/config.lua` **Config.Products** and add the folowing items to OR anywhere else you want them. The Only way in this script to get them is to find the travelling merchant
 
 ```lua
 	{name = 'bakingsoda',   price = 100,   amount = 5000, info = {}, type = 'item'},
@@ -204,7 +190,7 @@ As well as a place to offload images and videos from fivem that doesnt rely on d
 	{name = 'needle',    	price = 100,   amount = 5000, info = {}, type = 'item'},
 ```
 
-# Tier System
-- Turn On Config.TierSystem after you run the sql file
+- <h1>Tier System</h1>
+Turn On Config.TierSystem after you run the sql file
 
 [mlo i use](https://www.gta5-mods.com/maps/mlo-4x-drug-lab-interiors-sp-fivem) heres an option. use it or dont. 

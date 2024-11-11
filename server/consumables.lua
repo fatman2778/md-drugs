@@ -1,24 +1,26 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-for k, v in pairs(Consumables.Items) do
-    QBCore.Functions.CreateUseableItem(k, function(source, item)
-        if not Itemcheck(source, k, 1) then return end
-        local time = v.time or Consumables.defaulttime
-        local effect = v.effect or 0
-        local anim = v.anim or Consumables.defaultanim
-        local progressbartext = v.progressbartext or Consumables.defaultprogresstext
-        local add = v.add or {hunger = 0}
-        TriggerClientEvent("md-drugs:client:consumedrugs", source, time, effect, anim, progressbartext, add, k)
-    end)
+for k, v in pairs (Consumables.Items) do QBCore.Functions.CreateUseableItem(k, function(source, item)
+	local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+	if v.time == nil then v.time = Consumables.defaulttime end
+	if v.effect == nil then v.effect = 0 end
+	if v.anim == nil then v.anim = Consumables.defaultanim end
+	if v.progressbartext == nil then v.progressbartext = Consumables.defaultprogresstext end
+	if v.add == nil then v.add = 'none' end
+		 TriggerClientEvent("md-drugs:client:consumedrugs", source, v.time, v.effect, v.anim, v.progressbartext, v.add, k) 
+	end)
 end
 
 RegisterNetEvent('md-drugs:server:removeconsum', function(item)
-	RemoveItem(source,item, 1) 
-    Log(GetName(source)  .. ' Got High With ' .. item .. '!', 'consuming')
-end)
+	local src = source
+		RemoveItem(source,item, 1) 
+        Log(GetName(source)  .. ' Got High With ' .. item .. '!', 'consuming')
+end)    
 
 RegisterNetEvent('md-drugs:server:updatestatus', function(stat, statval)
-    local Player = getPlayer(source)
+    print(stat,statval)
+    local Player = QBCore.Functions.GetPlayer(source)
     if stat == "thirst" then
         local value = Player.PlayerData.metadata.thirst + statval
         Player.Functions.SetMetaData('hunger', value)
@@ -28,7 +30,7 @@ RegisterNetEvent('md-drugs:server:updatestatus', function(stat, statval)
         Player.Functions.SetMetaData('thirst', value)
         TriggerClientEvent('hud:client:UpdateNeeds', source, Player.PlayerData.metadata.thirst, value)
     elseif stat == "stress" then 
-        local value = Player.PlayerData.metadata.stress + statval
+        local value = Player.PlayerData.metadata.hunger + statval
         Player.Functions.SetMetaData('stress', value)
         TriggerClientEvent('hud:client:UpdateStress', source, Player.PlayerData.metadata.stress, value)
     elseif stat == "armor" then

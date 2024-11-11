@@ -1,25 +1,35 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Mescaline = {}
 
+function LoadModel(hash)
+    hash = GetHashKey(hash)
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(3000)
+    end
+end 
 local function pick(loc)
     if not progressbar(Lang.mescaline.pick, 4000, 'uncuff') then return end    
     TriggerServerEvent("Mescaline:pickupCane", loc)
 end
-
 RegisterNetEvent('Mescaline:respawnCane', function(loc)
     local v = GlobalState.Mescaline[loc]
     local hash = GetHashKey(v.model)
     if not Mescaline[loc] then
         Mescaline[loc] = CreateObject(hash, v.location, false, true, true)
         Freeze(Mescaline[loc], true, v.heading)
-        AddSingleModel(Mescaline[loc], {icon = "fa-solid fa-seedling",label = Lang.targets.mescaline.pick, action = function()  pick(loc) end}, loc )
+        AddSingleModel(Mescaline[loc], {icon = "fas fa-hand",label = "pick Cactus",action = function()  pick(loc) end}, loc )
     end
 end)
+
+
 
 RegisterNetEvent('Mescaline:removeCane', function(loc)
     if DoesEntityExist(Mescaline[loc]) then DeleteEntity(Mescaline[loc]) end
     Mescaline[loc] = nil
 end)
+
+
 
 RegisterNetEvent("Mescaline:init", function()
     for k, v in pairs (GlobalState.Mescaline) do
@@ -28,12 +38,25 @@ RegisterNetEvent("Mescaline:init", function()
         if not v.taken then
             Mescaline[k] = CreateObject(hash, v.location.x, v.location.y, v.location.z, false, true, true)
             Freeze(Mescaline[k], true, v.heading)
-            AddSingleModel(Mescaline[k], {icon = "fa-solid fa-seedling",label = Lang.targets.mescaline.pick,action = function()  pick(k) end}, k)
+            AddSingleModel(Mescaline[k], {icon = "fas fa-hand",label = "pick Cactus",action = function()  pick(k) end}, k)
         end
     end
 end)
 
-AddEventHandler('onResourceStop', function(resourceName)
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        LoadModel('prop_cactus_03')
+        TriggerEvent('Mescaline:init')
+    end
+ end)
+ 
+ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+     Wait(3000)
+     LoadModel('prop_cactus_03')
+     TriggerEvent('Mescaline:init')
+ end)
+ 
+ AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
         SetModelAsNoLongerNeeded(GetHashKey('prop_cactus_03'))
         for k, v in pairs(Mescaline) do
@@ -44,28 +67,43 @@ AddEventHandler('onResourceStop', function(resourceName)
     end
 end)
 
+
+
 RegisterNetEvent("md-drugs:client:drymescaline", function()
     if not ItemCheck('cactusbulb')  then return end 
 	if not progressbar(Lang.mescaline.dry, 4000, 'uncuff') then return end
 	TriggerServerEvent("md-drugs:server:drymescaline")
 end)
 
+
 RegisterNetEvent("md-drugs:client:takemescaline", function()
-    local chance, chance2 = math.random(1,100), math.random(1,100)
-    local weapon = ''
-    if chance2 == 100 then weapon = 'weapon_rpg' else weapon = 'weapon_flaregun' end
+local chance = math.random(1,100)
+local chance2 = math.random(1,100)
     if not progressbar(Lang.mescaline.eat, 4000, 'uncuff') then return end
 	if chance <= Config.Badtrip then 
 		AlienEffect()
-		local clone = ClonePed(PlayerPedId(), false, false, true)
+		clone = ClonePed(PlayerPedId(), false, false, true)
 		SetEntityAsMissionEntity(clone)
+		SetEntityVisible(clone, true)
+		SetPedRelationshipGroupHash(clone)
+		SetPedAccuracy(clone)
+		SetPedArmour(clone)
+		SetPedCanSwitchWeapon(clone, true)
 		SetPedFleeAttributes(clone, false)
-		GiveWeaponToPed(clone, weapon, 1, false, true)
-		TaskCombatPed(clone, PlayerPedId(), 0, 16)
-		SetPedCombatAttributes(clone, 46, true)
-		Wait(1000 * 30)
-        DeleteEntity(clone)
+		if chance2 <= 99 then
+			GiveWeaponToPed(clone, "weapon_flaregun", 1, false, true)
+			TaskCombatPed(clone, PlayerPedId(), 0, 16)
+			SetPedCombatAttributes(clone, 46, true)
+			Wait(1000 * 30)
+			DeleteEntity(clone)
+		else
+			GiveWeaponToPed(clone, "weapon_rpg", 1, false, true)
+			TaskCombatPed(clone, PlayerPedId(), 0, 16)
+			SetPedCombatAttributes(clone, 46, true)
+			Wait(1000 * 30)
+			DeleteEntity(clone)
+		end
 	else
 		AlienEffect()
-	end
+	end	
 end)

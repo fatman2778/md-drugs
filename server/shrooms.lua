@@ -20,7 +20,10 @@ function shroomsCooldown(loc)
     end)
 end
 
-RegisterNetEvent("shrooms:pickupCane", function(loc)
+
+RegisterNetEvent("shrooms:pickupCane")
+AddEventHandler("shrooms:pickupCane", function(loc)
+    local chance = math.random(1,10)
 	if CheckDist(source, Config.shrooms[loc].location) then return end
     if not Config.shrooms[loc].taken then
         Config.shrooms[loc].taken = true

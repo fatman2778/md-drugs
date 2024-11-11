@@ -20,7 +20,8 @@ function WeedCooldown(loc)
     end)
 end
 
-RegisterNetEvent("weed:pickupCane", function(loc)
+RegisterNetEvent("weed:pickupCane")
+AddEventHandler("weed:pickupCane", function(loc)
 	local src = source
     if not Config.WeedPlant[loc].taken then
         Config.WeedPlant[loc].taken = true
@@ -29,13 +30,14 @@ RegisterNetEvent("weed:pickupCane", function(loc)
         WeedCooldown(loc)
         AddItem(src, 'wetcannabis', 1)
 		Log(GetName(source) .. ' Picked Weed With a distance of ' .. dist(source, Config.WeedPlant[loc].location) .. ' vectors', 'weed')
+    
     end
 end)
 --------------- events
 
 RegisterServerEvent('md-drugs:server:dryoutweed', function()
 	local src = source
-    local Player = getPlayer(src)
+    local Player = QBCore.Functions.GetPlayer(src)
 	if RemoveItem(src,"wetcannabis", 1) then
     	AddItem(src,"drycannabis", 1)
 		Log(GetName(source) .. ' Dried Weed', 'weed')
@@ -64,21 +66,21 @@ end
 
 RegisterServerEvent('md-drugs:server:MakeWeedItems', function(data)
 	local src = source
-	local Player = getPlayer(src) 
+	local Player = QBCore.Functions.GetPlayer(src) 
 	if not Player then return end
 	if not GetRecipe(src, data.recipe, data.table, data.item) then return end
 end)
 
 RegisterServerEvent('md-drugs:server:makeoil', function(data)
 	local src = source
-	local Player = getPlayer(src) 
+	local Player = QBCore.Functions.GetPlayer(src) 
 	if not Player then return end
 	if not GetRecipe(src, 'weed', 'oil', 'shatter') then return end
 end)
 
 QBCore.Functions.CreateUseableItem("dabrig", function(source, item)
 local src = source
-local Player = getPlayer(src)
+local Player = QBCore.Functions.GetPlayer(src)
 
 if Player.Functions.GetItemByName("butanetorch") then 
 	if RemoveItem(src, "shatter", 1) then
@@ -89,24 +91,24 @@ end
 end)
 
 QBCore.Functions.CreateUseableItem("weedgrinder", function(source, item)
-	local src = source
-	if RemoveItem(src, "drycannabis",1 ) then 
-		AddItem(src, "grindedweed", 1)
-		TriggerClientEvent("md-drugs:client:grind", src)
-	else
-		Notifys(src,'You Need Dried Weed', 'error')
-	end
+local src = source
+if RemoveItem(src, "drycannabis",1 ) then 
+	AddItem(src, "grindedweed", 1)
+	TriggerClientEvent("md-drugs:client:grind", src)
+else
+	Notifys(src,'You Need Dried Weed', 'error')
+end
 end)
 
 QBCore.Functions.CreateUseableItem("mdwoods", function(source, item)
-	local src = source
-	local Player = getPlayer(src)
-	TriggerClientEvent("md-drugs:client:rollanim", src)
-	Wait(4000)
-	if RemoveItem(src, "mdwoods",1 ) then 
-		AddItem(src, "bluntwrap", 5)
-		AddItem(src, "tobacco", 5)
-	end
+local src = source
+local Player = QBCore.Functions.GetPlayer(src)
+TriggerClientEvent("md-drugs:client:rollanim", src)
+Wait(4000)
+if RemoveItem(src, "mdwoods",1 ) then 
+	AddItem(src, "bluntwrap", 5)
+	AddItem(src, "tobacco", 5)
+end
 end)
 
 

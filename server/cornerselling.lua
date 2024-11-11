@@ -1,8 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 lib.callback.register('md-drugs:server:cornerselling:getAvailableDrugs', function(source, cb)
-    local Player = getPlayer(source)
-    local rep = getRep(source, 'cornerselling')
+    local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return nil end
     local type = 0
     for k, v in pairs(QBConfig.DrugsPrice) do
@@ -13,8 +12,7 @@ lib.callback.register('md-drugs:server:cornerselling:getAvailableDrugs', functio
             local amount = math.random(1,item.amount)
             if amount >= 15 then amount = 15 end
             local price = math.random(QBConfig.DrugsPrice[k]['min'], QBConfig.DrugsPrice[k]['max']) * amount
-            local result = math.floor(price * rep.price)
-            return item.name, amount, result
+            return item.name, amount, price
         end
     end
     if type == 0 then 
@@ -25,9 +23,8 @@ end)
 
 RegisterNetEvent('md-drugs:server:sellCornerDrugs', function(item, amount, price)
     local src = source
-    local Player = getPlayer(src)
+    local Player = QBCore.Functions.GetPlayer(src)
     if RemoveItem(src, item, amount) then
-        AddRep(src, 'cornerselling', QBConfig.DrugsPrice[item].rep * amount)
         Log(GetName(src)  .. ' Sold ' .. amount .. ' Of ' .. item .. ' For A Price Of ' .. price .. '!' , 'cornerselling')
         if QBConfig.MarkedBills then
             if price  >= QBConfig.DrugsPrice[item]['min'] * amount and price  <= QBConfig.DrugsPrice[item]['max'] * amount then 
@@ -47,10 +44,11 @@ end)
 lib.addCommand('cornersell', {
     help = 'Sell Things On The Corner',
     params = {
+       
     },
 }, function(source, args, raw)
     local src = source
-    local Player = getPlayer(src)
+    local Player = QBCore.Functions.GetPlayer(source)
     Log(GetName(source)  .. ' Used Command cornersell!' , 'cornerselling')
     TriggerClientEvent('md-drugs:client:cornerselling', src)
 end)
