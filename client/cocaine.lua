@@ -2,52 +2,94 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local CocaPlant = {}
 local cuttingcoke = nil
 local baggingcoke = nil
+local CocaPlant = {}
+local currentZone = nil
 
-local function pick(loc)
-if not progressbar(Lang.Coke.picking, 4000, 'uncuff') then return end
-TriggerServerEvent("coke:pickupCane", loc)  
-return true 
-end
+-- Check player’s zone and request prop spawn
+Citizen.CreateThread(function()
+    while true do
+        local playerPed = PlayerPedId()
+        local playerCoords = GetEntityCoords(playerPed)
+        local zoneName = GetNameOfZone(playerCoords.x, playerCoords.y, playerCoords.z)
 
-RegisterNetEvent('coke:respawnCane', function(loc)
-    local v = GlobalState.CocaPlant[loc]
-    local hash = GetHashKey(v.model)
-    if not CocaPlant[loc] then
-        CocaPlant[loc] = CreateObject(hash, v.location, false, true, true)
-        Freeze(CocaPlant[loc], true, v.heading)
-        AddSingleModel(CocaPlant[loc], {icon = 'fas fa-hand', label = 'Pick Cocaine', action = function() if not pick(loc) then return end end}, loc)    
+        -- If player enters a new zone that matches the config, request spawn
+        if zoneName ~= currentZone and GlobalState.coca_config.zones[zoneName] then
+            currentZone = zoneName
+            TriggerServerEvent('cocaine:server:requestCocaSpawn', currentZone)
+        elseif not GlobalState.coca_config.zones[zoneName] then
+            currentZone = nil
+        end
+
+        Wait(5000)  -- Check every 5 seconds to reduce processing load
     end
 end)
 
-RegisterNetEvent('coke:removeCane', function(loc)
-    if DoesEntityExist(CocaPlant[loc]) then DeleteEntity(CocaPlant[loc]) end
-    CocaPlant[loc] = nil
+-- Spawning a Coca plant at a given location
+RegisterNetEvent('cocaine:client:spawnCocaPlant')
+AddEventHandler('cocaine:client:spawnCocaPlant', function(model, coords, isSpecial)
+    print(string.format("Debug: Received spawn request for coca plant at: x=%.2f, y=%.2f, z=%.2f", coords.x, coords.y, coords.z))
+    
+    local model = "prop_plant_01a"
+    local hash = GetHashKey(model)
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(10)
+    end
+
+    local plant = CreateObject(hash, coords.x, coords.y, coords.z, false, true, true)
+    if DoesEntityExist(plant) then
+        FreezeEntityPosition(plant, true)
+        CocaPlant[coords] = plant
+        print("Debug: Coca plant spawned successfully at:", coords)
+        print(string.format("Debug: Creating object at: x=%.2f, y=%.2f, z=%.2f", coords.x, coords.y, coords.z))
+
+        exports['ox_target']:addLocalEntity(plant, {
+            {
+                name = "coca_plant",
+                event = "cocaine:client:pickCocaPlant",
+                icon = "fas fa-seedling",
+                label = "Pick Coca Plant",
+                loc = coords,
+                distance = 2.5
+            }
+        })
+    else
+        print("Debug: Failed to create coca plant entity.")
+    end
+end)
+
+-- Event to pick the plant
+RegisterNetEvent('cocaine:client:pickCocaPlant')
+AddEventHandler('cocaine:client:pickCocaPlant', function(data)
+    local loc = data.loc
+    QBCore.Functions.Progressbar("pick_coca", "Picking Coca Plant...", 4000, false, true, {}, {}, {}, {}, function()
+        TriggerServerEvent('md-drugs:server:pickupCoca', loc)
+    end)
+end)
+
+-- Remove a specific Coca plant
+RegisterNetEvent('cocaine:client:removeCocaPlant')
+AddEventHandler('cocaine:client:removeCocaPlant', function(coords)
+    local plant = CocaPlant[coords]
+    if plant then
+        DeleteEntity(plant)
+        CocaPlant[coords] = nil
+        exports['ox_target']:removeEntity(plant)  -- Remove the target interaction for this plant
+    end
 end)
 
 RegisterNetEvent("coke:init", function()
     for k, v in pairs (GlobalState.CocaPlant) do
         local hash = GetHashKey(v.model)
-        if not HasModelLoaded(hash) then LoadModel(hash) end
+        LoadModel(hash) 
         if not v.taken then
             CocaPlant[k] = CreateObject(hash, v.location.x, v.location.y, v.location.z, false, true, true)
             Freeze(CocaPlant[k], true, v.heading)
-            AddSingleModel(CocaPlant[k], {icon = 'fas fa-hand', label = 'Pick Cocaine', action = function() if not pick(k) then return end end}, k)    
+            AddSingleModel(CocaPlant[k], {icon = "fa-solid fa-seedling", label = Lang.targets.coke.pick, action = function() if not pick(k) then return end end}, k)
         end
     end
 end)
 
-AddEventHandler('onResourceStart', function(resource)
-    if resource == GetCurrentResourceName() then
-        LoadModel('prop_plant_01a')
-        TriggerEvent('coke:init')
-    end
- end)
- RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-     Wait(3000)
-     LoadModel('prop_plant_01a')
-     TriggerEvent('coke:init')
- end)
- 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
         SetModelAsNoLongerNeeded(GetHashKey('prop_plant_01a'))
@@ -65,7 +107,7 @@ RegisterNetEvent("md-drugs:client:makepowder", function(data)
 	TriggerServerEvent("md-drugs:server:makepowder", data.data)
 end)
 
-RegisterNetEvent("md-drugs:client:cutcokeone", function()
+RegisterNetEvent("md-drugs:client:cutcokeone", function(data)
     if not ItemCheck('bakingsoda') then return end
 	cuttingcoke = true
     if Config.FancyCokeAnims then
@@ -73,31 +115,32 @@ RegisterNetEvent("md-drugs:client:cutcokeone", function()
     else
          if not progressbar(Lang.Coke.cutting, 5000, 'uncuff') then cuttingcoke = nil return end
     end
-	TriggerServerEvent("md-drugs:server:cutcokeone")
+	TriggerServerEvent("md-drugs:server:cutcokeone", data.data)
 	cuttingcoke = nil
 end)
 
-RegisterNetEvent("md-drugs:client:bagcoke", function() 
+RegisterNetEvent("md-drugs:client:bagcoke", function(data) 
     if not ItemCheck('empty_weed_bag') then return end
 	baggingcoke = true
     if Config.FancyCokeAnims then
 	    BagCoke()
     else
         if not progressbar(Lang.Coke.bagging, 5000, 'uncuff') then baggingcoke = nil return end
-    end      
-	TriggerServerEvent("md-drugs:server:bagcoke")
+    end
+	TriggerServerEvent("md-drugs:server:bagcoke", data.data)
 	baggingcoke = nil
-   
 end)
 
 CreateThread(function()
+    local config = lib.callback.await('md-drugs:server:getLocs', false)
+    if not config then return end
     if Config.FancyCokeAnims == false then 
-        AddBoxZoneMulti('cuttcoke', Config.CuttingCoke,  {	type = "client",	event = "md-drugs:client:cutcokeone",	icon = "fas fa-sign-in-alt",	label = "Cut Coke"})
-        AddBoxZoneMulti('baggcoke', Config.BaggingCoke,  {	type = "client",	event = "md-drugs:client:bagcoke",	icon = "fas fa-sign-in-alt",	label = "Bag Coke"})
+        AddBoxZoneMulti('cuttcoke', config.CuttingCoke,  {	type = "client",event = "md-drugs:client:cutcokeone",	icon = "fa-solid fa-mortar-pestle",  label = Lang.targets.coke.cut}) 
+        AddBoxZoneMulti('baggcoke', config.BaggingCoke,  {	type = "client",event = "md-drugs:client:bagcoke",	    icon = "fa-solid fa-sack-xmark",  label = Lang.targets.coke.bag})
     else
-        AddBoxZoneSingle('cutcoke', vector3(1093.17, -3195.74, -39.19),
-		    { type = "client", event = "md-drugs:client:cutcokeone", icon = "fas fa-sign-in-alt", label = "cut up", canInteract = function()if cuttingcoke == nil and baggingcoke == nil then return true end end })
-        AddBoxZoneSingle('bagcokepowder', vector3(1090.29, -3195.66, -39.13),
-		    { type = "client", event = "md-drugs:client:bagcoke", icon = "fas fa-sign-in-alt", label = "bagging", canInteract = function() if baggingcoke == nil and cuttingcoke == nil then return true end end })
+        AddBoxZoneSingle('cutcoke', config.singleSpot.cutcoke,
+		    { data = config.singleSpot.cutcoke,  type = "client", event = "md-drugs:client:cutcokeone", icon = "fa-solid fa-mortar-pestle", label = Lang.targets.coke.cut, canInteract = function() if cuttingcoke == nil and baggingcoke == nil then return true end end })
+        AddBoxZoneSingle('bagcokepowder', config.singleSpot.bagcokepowder,
+		    { data = config.singleSpot.bagcokepowder, type = "client", event = "md-drugs:client:bagcoke",    icon = "fa-solid fa-sack-xmark", label = Lang.targets.coke.bag, canInteract = function() if baggingcoke == nil and cuttingcoke == nil then return true end end })
     end
 end)

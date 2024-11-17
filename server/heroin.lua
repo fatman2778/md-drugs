@@ -1,9 +1,24 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-GlobalState.PoppyPlants = Config.PoppyPlants
+local hplants = {
+	{ location = vector3(-2251.3, -99.18, 100.11),    heading = 334.49,    model = "prop_plant_01b"},
+    { location = vector3(-2249.63, -92.97, 101.8),    heading = 329.56,    model = "prop_plant_01b"},
+    { location = vector3(-2245.57, -85.12, 104.5),    heading = 25.16,     model = "prop_plant_01b"},
+    { location = vector3(-2240.81, -88.48, 105.88),   heading = 21.52,     model = "prop_plant_01b"},
+    { location = vector3(-2240.87, -93.36, 103.88),   heading = 334.49,    model = "prop_plant_01b"},
+    { location = vector3(-2236.0, -95.34, 102.55),    heading = 329.56,    model = "prop_plant_01b"},
+    { location = vector3(-2240.6, -100.01, 100.49),   heading = 25.16,     model = "prop_plant_01b"},
+    { location = vector3(-2246.29, -104.92, 99.27),   heading = 21.52,     model = "prop_plant_01b"},
+    { location = vector3(-2243.64, -107.99, 96.71),   heading = 334.49,    model = "prop_plant_01b"},
+    { location = vector3(-2254.22, -108.76, 97.25),   heading = 329.56,    model = "prop_plant_01b"},
+    { location = vector3(-2247.33, -108.92, 97.70),   heading = 25.16,     model = "prop_plant_01b"},
+    { location = vector3(-2250.96, -111.22, 97.50),   heading = 21.52,     model = "prop_plant_01b"},
+    { location = vector3(465.95, -1021.32, 31.78),    heading = 21.52,     model = "prop_plant_01b"},
+}
 
+GlobalState.PoppyPlants = hplants
 
 Citizen.CreateThread(function()
-    for _, v in pairs(Config.PoppyPlants) do
+    for _, v in pairs(hplants) do
         v.taken = false
     end
 end)
@@ -12,11 +27,11 @@ end)
 function heroinCooldown(loc)
     CreateThread(function()
         Wait(Config.respawnTime * 1000)
-        Config.PoppyPlants[loc].taken = false
-        GlobalState.PoppyPlants = Config.PoppyPlants
+		h[loc].taken = false
+        GlobalState.PoppyPlants = hplants
         Wait(1000)
         TriggerClientEvent('heroin:respawnCane', -1, loc)
-		Log('Heroin Plant Respawned At ' .. Config.PoppyPlants[loc].location, 'heroin')
+		Log('Heroin Plant Respawned At ' .. hplants[loc].location, 'heroin')
     end)
 end
 
@@ -32,20 +47,19 @@ end)
 
 
 RegisterServerEvent("heroin:pickupCane", function(loc)
-	if CheckDist(source, Config.PoppyPlants[loc].location) then return end
-    if not Config.PoppyPlants[loc].taken then
-        Config.PoppyPlants[loc].taken = true
-        GlobalState.PoppyPlants = Config.PoppyPlants
+    if not h[loc].taken then
+		h[loc].taken = true
+        GlobalState.PoppyPlants = hplants
         TriggerClientEvent("heroin:removeCane", -1, loc)
         heroinCooldown(loc)
         AddItem(source, 'poppyresin', 1)
-        Log(GetName(source) .. ' Picked A Poppies With a distance of ' .. dist(source, Config.PoppyPlants[loc].location) .. ' vectors', 'heroin')
+        Log(GetName(source) .. ' Picked A Poppies With a distance of ' .. dist(source, hplants[loc].location) .. ' vectors', 'heroin')
     end
 end)
 
 RegisterServerEvent('md-drugs:server:dryplant', function(num)
 	local src = source
-	if CheckDist(source, Config.dryplant[num]['loc']) then return end
+	if not checkLoc(source, 'dryplant', num) then return end
 	if not Itemcheck(source, 'poppyresin', 1) then return end
 	if Config.TierSystem then
 		local heroin = getRep(src, 'heroin')
@@ -68,8 +82,8 @@ end)
 
 RegisterServerEvent('md-drugs:server:cutheroin', function(num)
 	local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-	if CheckDist(source, Config.cutheroinone[num]['loc']) then return end
+    local Player = getPlayer(src)
+	if not checkLoc(source, 'cutheroinone', num) then return end
 	if not Itemcheck(src, 'bakingsoda', 1) then return end
 	if Config.TierSystem then
 		local rawh = Player.Functions.GetItemByName('heroin')
@@ -95,9 +109,8 @@ end)
 
 RegisterServerEvent('md-drugs:server:getheroinlabkit', function()
 	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-
-	if CheckDist(source, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) then return end
+	local Player = getPlayer(src)
+	if not checkLoc(source, 'singleSpot', 'buyheroinlabkit') then return end
 	if Player.Functions.RemoveMoney('cash', Config.heroinlabkitprice) then
 		AddItem(src, 'heroinlabkit', 1)
 		Log(GetName(src) ..' Bought A Heroin lab Kit ' .. dist(source, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) .. ' vectors', 'heroin')
@@ -108,7 +121,7 @@ end)
 
 RegisterServerEvent('md-drugs:server:getheroinlabkitback', function()
 local src = source
-local Player = QBCore.Functions.GetPlayer(src)
+local Player = getPlayer(src)
 	if AddItem(src, "heroinlabkit", 1) then
 		Log(GetName(src) ..' Picked Up Their Heroin Lab Kit Back At ' .. GetCoords(src) .. '!', 'heroin')
 	end
@@ -116,7 +129,7 @@ end)
 
 QBCore.Functions.CreateUseableItem('heroinlabkit', function(source, item)
 local src = source
-local Player = QBCore.Functions.GetPlayer(src)
+local Player = getPlayer(src)
 	if not Itemcheck(source, 'heroinlabkit', 1) then return end
 	if TriggerClientEvent("md-drugs:client:setheroinlabkit", src) then
 		RemoveItem(src, "heroinlabkit", 1)
@@ -128,7 +141,7 @@ end)
 
 RegisterServerEvent('md-drugs:server:heatliquidheroin', function()
 local src = source
-local Player = QBCore.Functions.GetPlayer(src)
+local Player = getPlayer(src)
 	if not Itemcheck(source, 'emptyvial', 1) then return end
 	if Config.TierSystem then
 		local cuth = Player.Functions.GetItemByName('heroincut')
@@ -154,7 +167,7 @@ end)
 
 RegisterServerEvent('md-drugs:server:failheatingheroin', function()
 local src = source
-local Player = QBCore.Functions.GetPlayer(src)
+local Player = getPlayer(src)
 local cuth = Player.Functions.GetItemByName('heroincut')
 local cuth2 = Player.Functions.GetItemByName('heroincutstagetwo')
 local cuth3 = Player.Functions.GetItemByName('heroincutstagethree')
@@ -174,8 +187,8 @@ end)
 
 RegisterServerEvent('md-drugs:server:fillneedle', function(num)
 	local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-	if CheckDist(source, Config.fillneedle[num]['loc']) then return end
+    local Player = getPlayer(src)
+	if not checkLoc(source, 'fillneedle', num) then return end
 	if not Itemcheck(src, 'needle', 1) then return end
 	if Config.TierSystem then
 		local heroin = getRep(src, 'heroin')
@@ -207,7 +220,7 @@ end)
 
 RegisterServerEvent('md-drugs:server:failheroin', function()
 	local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = getPlayer(src)
 	Log(GetName(src) ..' Sucks And Burned Their Heroin', 'heroin')
 	if Config.TierSystem then
 		local vh = Player.Functions.GetItemByName('heroinvial')
