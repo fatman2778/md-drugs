@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local hplants = {
+
+local h = {
 	{ location = vector3(-2251.3, -99.18, 100.11),    heading = 334.49,    model = "prop_plant_01b"},
     { location = vector3(-2249.63, -92.97, 101.8),    heading = 329.56,    model = "prop_plant_01b"},
     { location = vector3(-2245.57, -85.12, 104.5),    heading = 25.16,     model = "prop_plant_01b"},
@@ -14,11 +15,9 @@ local hplants = {
     { location = vector3(-2250.96, -111.22, 97.50),   heading = 21.52,     model = "prop_plant_01b"},
     { location = vector3(465.95, -1021.32, 31.78),    heading = 21.52,     model = "prop_plant_01b"},
 }
-
-GlobalState.PoppyPlants = hplants
-
+GlobalState.PoppyPlants = h
 Citizen.CreateThread(function()
-    for _, v in pairs(hplants) do
+    for _, v in pairs(h) do
         v.taken = false
     end
 end)
@@ -28,10 +27,10 @@ function heroinCooldown(loc)
     CreateThread(function()
         Wait(Config.respawnTime * 1000)
 		h[loc].taken = false
-        GlobalState.PoppyPlants = hplants
+        GlobalState.PoppyPlants = h
         Wait(1000)
         TriggerClientEvent('heroin:respawnCane', -1, loc)
-		Log('Heroin Plant Respawned At ' .. hplants[loc].location, 'heroin')
+		Log('Heroin Plant Respawned At ' .. h[loc].location, 'heroin')
     end)
 end
 
@@ -49,11 +48,11 @@ end)
 RegisterServerEvent("heroin:pickupCane", function(loc)
     if not h[loc].taken then
 		h[loc].taken = true
-        GlobalState.PoppyPlants = hplants
+        GlobalState.PoppyPlants = h
         TriggerClientEvent("heroin:removeCane", -1, loc)
         heroinCooldown(loc)
         AddItem(source, 'poppyresin', 1)
-        Log(GetName(source) .. ' Picked A Poppies With a distance of ' .. dist(source, hplants[loc].location) .. ' vectors', 'heroin')
+        Log(GetName(source) .. ' Picked A Poppies With a distance of ' .. dist(source, h[loc].location) .. ' vectors', 'heroin')
     end
 end)
 

@@ -1,126 +1,16 @@
 QBConfig = {}
-
+-----------  qb-drugs update built in here below
+----------- Everything is now a target and not displaytext. Dealers are no longer just doors, they will spawn peds where you place your dealer. This is a literally qb-drugs with SLIGHT edits. mainly added peds for deliveries, made everything a target
 
 QBConfig.MinimumDrugSalePolice = 0
-QBConfig.MarkedBills = false
+QBConfig.MarkedBills = false -- if false on both options below then it auto converts selling to give cash
 QBConfig.CustomDirtyMoney = false
 QBConfig.CustomDirtyMoneyitem = ''
-
-QBConfig.DrugsPrice = {
-    -- Weed (25-75)
-    ["weed_white-widow"] =          {min = 25, max = 35},
-    ["weed_og-kush"] =              {min = 30, max = 40},
-    ["weed_skunk"] =                {min = 35, max = 45},
-    ["weed_amnesia"] =              {min = 40, max = 50},
-    ["weed_purple-haze"] =          {min = 45, max = 55},
-    ["weed_ak47"] =                 {min = 50, max = 75},
-    ["blunts"] =                    {min = 35, max = 45},
-    ["blunt"] =                     {min = 35, max = 45},
-    ["specialchocolate"] =          {min = 40, max = 50},
-    ["specialbrownie"] =            {min = 40, max = 50},
-    ["specialcookie"] =             {min = 40, max = 50},
-    ["specialmuffin"] =             {min = 40, max = 50},
-    ["shatter"] =                   {min = 55, max = 75},
-    ["ciggie"] =                    {min = 25, max = 35},
-
-    -- Meth (50-100)
-    ["methbags"] =                  {min = 50, max = 100},
-
-    -- Shrooms (75-125)
-    ["shrooms"] =                   {min = 75, max = 125},
-
-    -- Lean (100-150)
-    ["cupoflean"] =                 {min = 100, max = 150},
-    ["cupofdextro"] =               {min = 100, max = 150},
-    ["leanblunts"] =                {min = 110, max = 160},
-    ["dextroblunts"] =              {min = 110, max = 160},
-    ["chewyblunt"] =                {min = 110, max = 160},
-
-    -- Mescaline (125-175)
-    ["driedmescaline"] =            {min = 125, max = 175},
-
-    -- LSD (150-225)
-    ["smiley_tabs"] =               {min = 150, max = 175},
-    ["wildcherry_tabs"] =           {min = 160, max = 185},
-    ["yinyang_tabs"] =              {min = 170, max = 195},
-    ["pineapple_tabs"] =            {min = 180, max = 205},
-    ["bart_tabs"] =                 {min = 190, max = 215},
-    ["gratefuldead_tabs"] =         {min = 200, max = 225},
-
-    -- Heroin (175-250)
-    ["heroin_ready"] =              {min = 175, max = 200},
-    ["heroin_readystagetwo"] =      {min = 200, max = 225},
-    ["heroin_readystagethree"] =    {min = 225, max = 250},
-
-    -- Cocaine (200-275)
-    ["cokebaggy"] =                 {min = 200, max = 225},
-    ["cokebaggystagetwo"] =         {min = 225, max = 250},
-    ["cokebaggystagethree"] =       {min = 250, max = 275},
-
-    -- Crack (225-300)
-    ["crack_baggy"] =               {min = 225, max = 250},
-    ["baggedcracked"] =             {min = 250, max = 275},
-    ["baggedcrackedstagetwo"] =     {min = 275, max = 300},
-    ["baggedcrackedstagethree"] =   {min = 300, max = 325},
-
-    -- XTC/Ecstasy (250-350)
-    -- White series
-    ["white_playboys"] =            {min = 250, max = 275},
-    ["white_playboys2"] =           {min = 260, max = 285},
-    ["white_playboys3"] =           {min = 270, max = 295},
-    ["white_playboys4"] =           {min = 280, max = 305},
-    -- Blue series
-    ["blue_playboys"] =             {min = 275, max = 300},
-    ["blue_playboys2"] =            {min = 285, max = 310},
-    ["blue_playboys3"] =            {min = 295, max = 320},
-    ["blue_playboys4"] =            {min = 305, max = 330},
-    -- Red series
-    ["red_playboys"] =              {min = 300, max = 325},
-    ["red_playboys2"] =             {min = 310, max = 335},
-    ["red_playboys3"] =             {min = 320, max = 345},
-    ["red_playboys4"] =             {min = 330, max = 350},
-    -- Orange series
-    ["orange_playboys"] =           {min = 325, max = 350},
-    ["orange_playboys2"] =          {min = 335, max = 360},
-    ["orange_playboys3"] =          {min = 345, max = 370},
-    ["orange_playboys4"] =          {min = 350, max = 375},
-
-    -- Wholesale Items (Bulk prices roughly 15x individual sale price)
-    ["weed_brick"] =                {min = 1000, max = 1500},  -- About 15-20 individual weed sales
-    ["coke_brick"] =                {min = 3000, max = 4000},  -- About 12-15 individual coke sales
-}
-
--- Config for Dealers (Empty for now, you can populate with dealer data)
 QBConfig.Dealers = {}
 
--- Shop QBConfig Products (for weed seeds and items for sale in shops)
-QBConfig.Products = {
-    [1] = {name = "weed_white-widow_seed", price = 15, amount = 150, minrep = 0},
-    [2] = {name = "weed_skunk_seed", price = 15, amount = 150, minrep = 0},
-    [3] = {name = "weed_purple-haze_seed", price = 15, amount = 150, minrep = 0},
-    [4] = {name = "weed_og-kush_seed", price = 15, amount = 150, minrep = 0},
-    [5] = {name = "weed_amnesia_seed", price = 15, amount = 150, minrep = 0},
-}
-
-QBConfig.ProductsStupidNameRewrite = {
-    [1] = {name = "weed_white-widow_seed", price = 15, amount = 150, minrep = 0},
-    [2] = {name = "weed_skunk_seed", price = 15, amount = 150, minrep = 0},
-    [3] = {name = "weed_purple-haze_seed", price = 15, amount = 150, minrep = 0},
-    [4] = {name = "weed_og-kush_seed", price = 15, amount = 150, minrep = 0},
-    [5] = {name = "weed_amnesia_seed", price = 15, amount = 150, minrep = 0},
-}
-
-QBConfig.UseMarkedBills = false -- true for marked bills, false for cash
-QBConfig.DeliveryRepGain = 1 -- amount of rep gained per delivery
-QBConfig.DeliveryRepLoss = 1 -- amount of rep lost if delivery wrong or late
-QBConfig.PoliceDeliveryModifier = 2 -- amount to multiply active cop count by
-QBConfig.WrongAmountFee = 2 -- divide the payout by this value for wrong delivery amount
-QBConfig.OverdueDeliveryFee = 4 -- divide the payout by this value for overdue delivery
-
--- Rest of the config remains unchanged
 QBConfig.DeliveryItems = {
-    {    item = "weed_brick",    minrep = 0,    payout = {min = 1000, max = 1500}},
-    {    item = "coke_brick",    minrep = 25,    payout = {min = 3000, max = 4000}},
+    {    item = "weed_brick",    minrep = 0,    payout = {min = 10, max = 50}},
+    {    item = "coke_brick",    minrep = 0,    payout = {min = 10, max = 50}},
 }
 
 QBConfig.DeliveryLocations = {
@@ -204,7 +94,6 @@ QBConfig.DeliveryLocations = {
     [78] = {    ["label"] = "Resort",                   ["coords"] = vector3(-1245.63, 376.21, 75.34),},
     [79] = {    ["label"] = "Bahama Mamas",             ["coords"] = vector3(-1383.1, -639.99, 28.67),},
  }
-
 
 QBConfig.NoSellZones = {
     {loc = vector3(445.11, -991.3, 30.69), width = 10.0, length = 10.0, height = 10.0, rot = 180.0},

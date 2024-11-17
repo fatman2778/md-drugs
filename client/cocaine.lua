@@ -2,80 +2,26 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local CocaPlant = {}
 local cuttingcoke = nil
 local baggingcoke = nil
-local CocaPlant = {}
-local currentZone = nil
 
--- Check player’s zone and request prop spawn
-Citizen.CreateThread(function()
-    while true do
-        local playerPed = PlayerPedId()
-        local playerCoords = GetEntityCoords(playerPed)
-        local zoneName = GetNameOfZone(playerCoords.x, playerCoords.y, playerCoords.z)
+local function pick(loc)
+    if not progressbar(Lang.Coke.picking, 4000, 'uncuff') then return end
+        TriggerServerEvent("coke:pickupCane", loc)  
+    return true
+end
 
-        -- If player enters a new zone that matches the config, request spawn
-        if zoneName ~= currentZone and GlobalState.coca_config.zones[zoneName] then
-            currentZone = zoneName
-            TriggerServerEvent('cocaine:server:requestCocaSpawn', currentZone)
-        elseif not GlobalState.coca_config.zones[zoneName] then
-            currentZone = nil
-        end
-
-        Wait(5000)  -- Check every 5 seconds to reduce processing load
+RegisterNetEvent('coke:respawnCane', function(loc)
+    local v = GlobalState.CocaPlant[loc]
+    local hash = GetHashKey(v.model)
+    if not CocaPlant[loc] then
+        CocaPlant[loc] = CreateObject(hash, v.location, false, true, true)
+        Freeze(CocaPlant[loc], true, v.heading)
+        AddSingleModel(CocaPlant[loc], {icon = "fa-solid fa-seedling", label = Lang.targets.coke.pick, action = function() if not pick(loc) then return end end}, loc)
     end
 end)
 
--- Spawning a Coca plant at a given location
-RegisterNetEvent('cocaine:client:spawnCocaPlant')
-AddEventHandler('cocaine:client:spawnCocaPlant', function(model, coords, isSpecial)
-    print(string.format("Debug: Received spawn request for coca plant at: x=%.2f, y=%.2f, z=%.2f", coords.x, coords.y, coords.z))
-    
-    local model = "prop_plant_01a"
-    local hash = GetHashKey(model)
-    RequestModel(hash)
-    while not HasModelLoaded(hash) do
-        Wait(10)
-    end
-
-    local plant = CreateObject(hash, coords.x, coords.y, coords.z, false, true, true)
-    if DoesEntityExist(plant) then
-        FreezeEntityPosition(plant, true)
-        CocaPlant[coords] = plant
-        print("Debug: Coca plant spawned successfully at:", coords)
-        print(string.format("Debug: Creating object at: x=%.2f, y=%.2f, z=%.2f", coords.x, coords.y, coords.z))
-
-        exports['ox_target']:addLocalEntity(plant, {
-            {
-                name = "coca_plant",
-                event = "cocaine:client:pickCocaPlant",
-                icon = "fas fa-seedling",
-                label = "Pick Coca Plant",
-                loc = coords,
-                distance = 2.5
-            }
-        })
-    else
-        print("Debug: Failed to create coca plant entity.")
-    end
-end)
-
--- Event to pick the plant
-RegisterNetEvent('cocaine:client:pickCocaPlant')
-AddEventHandler('cocaine:client:pickCocaPlant', function(data)
-    local loc = data.loc
-    QBCore.Functions.Progressbar("pick_coca", "Picking Coca Plant...", 4000, false, true, {}, {}, {}, {}, function()
-        TriggerServerEvent('md-drugs:server:pickupCoca', loc)
-    end)
-end)
-
--- Remove a specific Coca plant
-RegisterNetEvent('cocaine:client:removeCocaPlant')
-AddEventHandler('cocaine:client:removeCocaPlant', function(coords)
-    local plant = CocaPlant[coords]
-    if plant then
-        DeleteEntity(plant)
-        CocaPlant[coords] = nil
-        exports['ox_target']:removeEntity(plant)  -- Remove the target interaction for this plant
-    end
+RegisterNetEvent('coke:removeCane', function(loc)
+    if DoesEntityExist(CocaPlant[loc]) then DeleteEntity(CocaPlant[loc]) end
+    CocaPlant[loc] = nil
 end)
 
 RegisterNetEvent("coke:init", function()
@@ -133,7 +79,7 @@ end)
 
 CreateThread(function()
     local config = lib.callback.await('md-drugs:server:getLocs', false)
-    if not config then return end
+    if not config then print('why') return end
     if Config.FancyCokeAnims == false then 
         AddBoxZoneMulti('cuttcoke', config.CuttingCoke,  {	type = "client",event = "md-drugs:client:cutcokeone",	icon = "fa-solid fa-mortar-pestle",  label = Lang.targets.coke.cut}) 
         AddBoxZoneMulti('baggcoke', config.BaggingCoke,  {	type = "client",event = "md-drugs:client:bagcoke",	    icon = "fa-solid fa-sack-xmark",  label = Lang.targets.coke.bag})

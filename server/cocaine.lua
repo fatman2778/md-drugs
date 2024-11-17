@@ -1,75 +1,32 @@
 local QBCore = exports['qb-core']:GetCoreObject()
--- Include configuration for zones, models, and spawning rules
-local coca_config = {
-    zones = {
-        ['MTCHIL'] = 30, -- Mount Chiliad area
-        ['MTGORDO'] = 30, -- Mount Gordo
-        ['CCREAK'] = 30, -- Cassidy Creek
-        ['GALFISH'] = 30
-    },
-    special_coca_roll = function()
-        return math.random(1, 100) <= 5 -- 5% chance for special coca plant
-    end,
-    models = { `prop_plant_01a` },
-    models_special = { `prop_coca_plant_special` },
-    cleanup_time = 30, -- minutes
-    test_mode = true  -- Toggle this to true for testing
+local cokeplants = {
+    { location = vector3(1474.25, -2643.87, 42.88),    heading = 334.49,     model = "prop_plant_01a" },
+    { location = vector3(1472.35, -2649.3, 41.87),     heading = 329.56,     model = "prop_plant_01a" }, 
+    { location = vector3(1475.7, -2652.9, 40.8),       heading = 25.16,      model = "prop_plant_01a" }, 
+    { location = vector3(1481.0, -2654.99, 39.86),     heading = 21.52,      model = "prop_plant_01a" }, 
+    { location = vector3(1480.9, -2660.63, 38.68),     heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1477.18, -2666.53, 38.19),    heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1477.58, -2670.82, 37.73),    heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1476.56, -2675.82, 37.46),    heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1474.8, -2680.19, 37.03),     heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1471.52, -2685.0, 36.82),     heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1462.82, -2676.58, 38.83),    heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1461.31, -2667.74, 39.67),    heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1456.3, -2647.61, 43.39),     heading = 202.97,     model = "prop_plant_01a" },
+    { location = vector3(1453.65, -2641.56, 45.0),     heading = 202.97,     model = "prop_plant_01a" },
 }
 
-GlobalState.coca_config = coca_config
+GlobalState.CocaPlant = cokeplants
 
-local spawned_coca = {}
-
--- Event to spawn a coca plant
-RegisterNetEvent('cocaine:server:requestCocaSpawn')
-AddEventHandler('cocaine:server:requestCocaSpawn', function(zone)
-    print("Debug: Received request to spawn in zone:", zone)
-    
-    local src = source
-    local ped = GetPlayerPed(src)
-    local playerCoords = GetEntityCoords(ped)
-
-    if coca_config.zones[zone] and (not spawned_coca[zone] or #spawned_coca[zone] < coca_config.zones[zone]) then
-        local isSpecial = coca_config.special_coca_roll()
-        local plant_model = isSpecial and coca_config.models_special[1] or coca_config.models[math.random(#coca_config.models)]
-        
-        local spawnCoords = {
-            x = playerCoords.x + math.random(-5, 5),
-            y = playerCoords.y + math.random(-5, 5),
-            z = playerCoords.z
-        }
-
-        if not spawned_coca[zone] then
-            spawned_coca[zone] = {}
-        end
-
-        table.insert(spawned_coca[zone], { model = plant_model, coords = spawnCoords, isSpecial = isSpecial })
-        print(string.format("Debug: Spawning coca plant at coords: x=%.2f, y=%.2f, z=%.2f", spawnCoords.x, spawnCoords.y, spawnCoords.z))
-        
-        TriggerClientEvent('cocaine:client:spawnCocaPlant', -1, plant_model, spawnCoords, isSpecial)
-    else
-        print("Debug: Zone limit reached or invalid zone.")
-    end
-end)
--- Cleanup thread to clear old coca plants
 Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(coca_config.cleanup_time * 60000)
-        print("Debug: Starting coca plant cleanup.")
-        for zone, plants in pairs(spawned_coca) do
-            for _, plant in ipairs(plants) do
-                TriggerClientEvent('cocaine:client:removeCocaPlant', -1, plant.coords)
-                print("Debug: Removing coca plant at coords:", plant.coords)
-            end
-            spawned_coca[zone] = {}
-        end
-        print("Debug: Coca plant cleanup completed.")
+    for _, v in pairs(cokeplants) do
+        v.taken = false
     end
 end)
 
 function CaneCooldown(loc)
     CreateThread(function()
-        Wait(Config.respawnTime * 1)
+        Wait(Config.respawnTime * 1000)
         cokeplants[loc].taken = false
         GlobalState.CocaPlant = cokeplants
         Wait(1000)
@@ -78,14 +35,14 @@ function CaneCooldown(loc)
     end)
 end
 
-RegisterNetEvent("coke:pickupCoca")
-AddEventHandler("coke:pickupCoca", function(loc)
+RegisterNetEvent("coke:pickupCane")
+AddEventHandler("coke:pickupCane", function(loc)
 	local src = source
-	--if CheckDist(src, Config.CocaPlant[loc].location) then return end
+	if CheckDist(src, cokeplants[loc].location) then return end
     if not cokeplants[loc].taken then
         cokeplants[loc].taken = true
         GlobalState.CocaPlant = cokeplants
-        TriggerClientEvent("coke:removeCocaPlant", -1, loc)
+        TriggerClientEvent("coke:removeCane", -1, loc)
         CaneCooldown(loc)
         AddItem(src, 'coca_leaf', 1)
 		--Log(GetName(src) .. ' Picked A Coca Leaf With a distance of ' .. dist(src, Config.CocaPlant[loc].location) .. ' vectors', 'coke')

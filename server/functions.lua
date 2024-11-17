@@ -2,7 +2,7 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local notify = Config.Notify -- qb or ox
 
 ------------------------------------------ logging stuff
-local logs = true 
+local logs = false 
 local logapi = GetConvar("fivemerrLogs", "")
 local endpoint = 'https://api.fivemerr.com/v1/logs'
 local headers = {

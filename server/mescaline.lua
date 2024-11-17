@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local mescalineplants = {
+
+local m = {
     { location = vector3(2598.73, 4207.89, 41.02),    heading = 334.49,    model = "prop_cactus_03"},
     { location = vector3(2601.46, 4199.34, 40.62),    heading = 329.56,    model = "prop_cactus_03"},
     { location = vector3(2611.63, 4194.18, 41.18),    heading = 25.16,     model = "prop_cactus_03"},
@@ -18,11 +19,9 @@ local mescalineplants = {
     { location = vector3(2614.39, 4188.3, 41.68),     heading = 21.52,     model = "prop_cactus_03"},
     { location = vector3(2623.82, 4189.97, 41.44),    heading = 21.52,     model = "prop_cactus_03"},
 }
-
-GlobalState.Mescaline = mescalineplants
-
+GlobalState.Mescaline = m
 Citizen.CreateThread(function()
-    for _, v in pairs(mescalineplants) do
+    for _, v in pairs(m) do
         v.taken = false
     end
 end)
@@ -31,9 +30,9 @@ function MescalineCooldown(loc)
     CreateThread(function()
         Wait(Config.respawnTime * 1000)
         m[loc].taken = false
-        GlobalState.Mescaline = mescalineplants
+        GlobalState.Mescaline = m
         TriggerClientEvent('Mescaline:respawnCane', -1, loc)
-        Log('Cactus Respawned At ' ..mescalineplants[loc].location, 'mescaline')
+        Log('Cactus Respawned At ' ..m[loc].location, 'mescaline')
     end)
 end
 
@@ -42,11 +41,11 @@ RegisterNetEvent("Mescaline:pickupCane", function(loc)
 	if CheckDist(source, m[loc].location) then return end
     if not m[loc].taken then
         m[loc].taken = true
-        GlobalState.Mescaline = mescalineplants
+        GlobalState.Mescaline = m
         TriggerClientEvent("Mescaline:removeCane", -1, loc)
         MescalineCooldown(loc)
         AddItem(source,'cactusbulb', 1)
-        Log(GetName(source) .. ' Picked Cactus Bulbs With a distance of ' .. dist(source, mescalineplants[loc].location) .. ' vectors', 'mescaline')
+        Log(GetName(source) .. ' Picked Cactus Bulbs With a distance of ' .. dist(source, m[loc].location) .. ' vectors', 'mescaline')
     end
 end)
 

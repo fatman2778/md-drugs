@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local shrooms = {
+
+local s = {
     { location = vector3(2185.14, 5183.81, 57.48),    heading = 334.49,    model = "mushroom"},
     { location = vector3(2174.45, 5187.85, 57.43),    heading = 329.56,    model = "mushroom"},
     { location = vector3(2166.22, 5196.56, 58.0),     heading = 25.16,     model = "mushroom"},
@@ -18,11 +19,9 @@ local shrooms = {
     { location = vector3(2185.85, 5190.49, 58.1),     heading = 21.52,     model = "mushroom"},
     { location = vector3(2179.95, 5194.19, 58.26),    heading = 21.52,     model = "mushroom"},
 }
-
-GlobalState.shrooms = shrooms
-
+GlobalState.shrooms = s
 Citizen.CreateThread(function()
-    for _, v in pairs(shrooms) do
+    for _, v in pairs(s) do
         v.taken = false
     end
 end)
@@ -32,22 +31,22 @@ function shroomsCooldown(loc)
     CreateThread(function()
         Wait(Config.respawnTime * 1000)
         s[loc].taken = false
-        GlobalState.shrooms = shrooms
+        GlobalState.shrooms = s
         Wait(1000)
         TriggerClientEvent('shrooms:respawnCane', -1, loc)
-        Log('Cactus Respawned At ' .. shrooms[loc].location, 'shrooms')
+        Log('Cactus Respawned At ' .. s[loc].location, 'shrooms')
     end)
 end
 
 RegisterNetEvent("shrooms:pickupCane", function(loc)
-	if CheckDist(source, shrooms[loc].location) then return end
+	if CheckDist(source, s[loc].location) then return end
     if not s[loc].taken then
         s[loc].taken = true
-        GlobalState.shrooms = shrooms
+        GlobalState.shrooms = s
         TriggerClientEvent("shrooms:removeCane", -1, loc)
         shroomsCooldown(loc)
         AddItem(source, 'shrooms', 1)
-        Log(GetName(source) .. ' Picked A Shroom With a distance of ' .. dist(source,shrooms[loc].location) .. ' vectors', 'shrooms')
+        Log(GetName(source) .. ' Picked A Shroom With a distance of ' .. dist(source,s[loc].location) .. ' vectors', 'shrooms')
     end
 end)
 
