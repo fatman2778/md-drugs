@@ -2,20 +2,42 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local CocaPlant = {}
 local cuttingcoke = nil
 local baggingcoke = nil
+local CurrentZone = nil
+local ZoneEntryTime = nil
+local PlantSpawnLimit = 5
+local PlantSpawnRadius = 30
+
+local Zones = {
+    ['MTCHIL'] = { label = "Mount Chiliad", radius = 30 },
+    ['MTGORDO'] = { label = "Mount Gordo", radius = 30 },
+    ['CCREAK'] = { label = "Cassidy Creek", radius = 30 },
+    ['GALFISH'] = { label = "Galilee Fishing Area", radius = 30 },
+}
 
 local function pick(loc)
-    if not progressbar(Lang.Coke.picking, 4000, 'uncuff') then return end
-        TriggerServerEvent("coke:pickupCane", loc)  
+    if not progressbar("Picking coca plant...", 4000, 'uncuff') then return end
+    TriggerServerEvent("coke:pickupCane", loc)  
     return true
+end
+
+local function spawnPlant(model, coords, heading, loc)
+    local hash = GetHashKey(model)
+    LoadModel(hash)
+    if not CocaPlant[loc] then
+        CocaPlant[loc] = CreateObject(hash, coords.x, coords.y, coords.z, false, true, true)
+        Freeze(CocaPlant[loc], true, heading)
+        AddSingleModel(CocaPlant[loc], {
+            icon = "fa-solid fa-seedling",
+            label = "Pick Coca Plant",
+            action = function() if not pick(loc) then return end end
+        }, loc)
+    end
 end
 
 RegisterNetEvent('coke:respawnCane', function(loc)
     local v = GlobalState.CocaPlant[loc]
-    local hash = GetHashKey(v.model)
-    if not CocaPlant[loc] then
-        CocaPlant[loc] = CreateObject(hash, v.location, false, true, true)
-        Freeze(CocaPlant[loc], true, v.heading)
-        AddSingleModel(CocaPlant[loc], {icon = "fa-solid fa-seedling", label = Lang.targets.coke.pick, action = function() if not pick(loc) then return end end}, loc)
+    if v then
+        spawnPlant(v.model, v.location, v.heading, loc)
     end
 end)
 
@@ -25,23 +47,41 @@ RegisterNetEvent('coke:removeCane', function(loc)
 end)
 
 RegisterNetEvent("coke:init", function()
-    for k, v in pairs (GlobalState.CocaPlant) do
-        local hash = GetHashKey(v.model)
-        LoadModel(hash) 
+    for k, v in pairs(GlobalState.CocaPlant) do
         if not v.taken then
-            CocaPlant[k] = CreateObject(hash, v.location.x, v.location.y, v.location.z, false, true, true)
-            Freeze(CocaPlant[k], true, v.heading)
-            AddSingleModel(CocaPlant[k], {icon = "fa-solid fa-seedling", label = Lang.targets.coke.pick, action = function() if not pick(k) then return end end}, k)
+            spawnPlant(v.model, v.location, v.heading, k)
         end
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        local playerCoords = GetEntityCoords(PlayerPedId())
+        local zoneName = GetNameOfZone(playerCoords.x, playerCoords.y, playerCoords.z)
+
+        if Zones[zoneName] then
+            if CurrentZone ~= zoneName then
+                CurrentZone = zoneName
+                ZoneEntryTime = GetGameTimer()
+            elseif GetGameTimer() - ZoneEntryTime > 5000 then -- 5 seconds delay
+                TriggerServerEvent('coke:spawnPlantsInZone', zoneName, PlantSpawnLimit, PlantSpawnRadius)
+                ZoneEntryTime = nil
+            end
+        else
+            CurrentZone = nil
+            ZoneEntryTime = nil
+        end
+
+        Wait(500)
     end
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
-        SetModelAsNoLongerNeeded(GetHashKey('prop_plant_01a'))
-        for k, v in pairs(CocaPlant) do
-            if DoesEntityExist(v) then
-                DeleteEntity(v) SetEntityAsNoLongerNeeded(v)
+        for _, plant in pairs(CocaPlant) do
+            if DoesEntityExist(plant) then
+                DeleteEntity(plant)
+                SetEntityAsNoLongerNeeded(plant)
             end
         end
     end
